@@ -14,7 +14,7 @@ import matplotlib as mpl
 from plotly.offline import iplot
 
 #reading in the dataset
-df = pd.read_csv("/Users/kaushiknarasimha/Downloads/2016_2021/US_Accidents_Dec21_updated.csv")
+df = pd.read_csv("US_Accidents_Dec21_updated.csv")
 df.head(5)
 
 
@@ -150,7 +150,7 @@ msno.bar(df1);
 msno.matrix(df1);
 
 #Saving the cleaned version 1 file
-#df1.to_csv('/Users/kaushiknarasimha/Downloads//cleaned_v1_US_Accidents_Dec21_updated.csv')
+#df1.to_csv('cleaned_v1_US_Accidents_Dec21_updated.csv')
 
 
 #identifying Interstate Highways from Description and Street Name
@@ -165,7 +165,7 @@ df2.replace({"Road_type": {True:"Interstate", False:"Not_interstate"}}, inplace=
 df2.head()
      
  #saving the cleaned v2 file    
-df2.to_csv('/Users/kaushiknarasimha/Downloads/cleaned_v2_US_Accidents_Dec21_updated.csv')
+df2.to_csv('cleaned_v2_US_Accidents_Dec21_updated.csv')
      
      
  msno.matrix(df2);    
