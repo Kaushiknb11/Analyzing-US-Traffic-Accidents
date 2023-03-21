@@ -128,15 +128,21 @@ X_train, X_test, y_train, y_test = train_test_split(X_sample, y_sample, random_s
 print(X_train.shape, y_train.shape)
 print(X_test.shape, y_test.shape)
 
-X_train.head(5)
-y_train.head(10)
-X_test.head(5)
-y_test.head(5)
+#X_train.head(5)
+#y_train.head(10)
+#X_test.head(5)
+#y_test.head(5)
 
+#GridSearchCV
 dtc = DecisionTreeClassifier(random_state=42)
-parameters = [{"criterion": ["gini", "entropy"], "max_depth": [5, 10, 15, 30]}]
+parameters = [{"criterion": ["gini", "entropy"], "max_depth": [5, 10, 15, 30], "min_samples_split": [5000, 10000, 20000],"min_samples_leaf": [500,1000,5000,10000,20000]}]
 grid = GridSearchCV(dtc, parameters, verbose=5, n_jobs=-1)
 grid.fit(X_train, y_train)
+
+print("Best parameters scores:")
+print(grid.best_params_)
+print("Train score:", grid.score(X_train, y_train))
+print("Validation score:", grid.score(X_test, y_test))
 
 print("Best parameters scores:")
 print(grid.best_params_)
@@ -210,7 +216,7 @@ plot_tree(dtc, max_depth=4, fontsize=10, feature_names=X_train.columns.to_list()
 plt.show()
 
 # create dot file with max depth of 3
-dot_data = export_graphviz(dtc, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=7)
+dot_data = export_graphviz(dtc, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=5)
 
 # create graph from dot file
 graph = graphviz.Source(dot_data)
@@ -222,7 +228,7 @@ graph.view()
 #model 2
 
 
-dtc1 = DecisionTreeClassifier(random_state=42, criterion = 'gini', max_depth = 5)
+dtc1 = DecisionTreeClassifier(random_state=42, criterion = 'entropy', max_depth = 5, min_samples_leaf=10000, min_samples_split= 10000)
 
 
 print("Default scores:")
@@ -285,7 +291,7 @@ X_train, X_test, y_train, y_test = train_test_split(X_sample, y_sample, random_s
 print(X_train.shape, y_train.shape)
 print(X_test.shape, y_test.shape)
 
-dtc2 = DecisionTreeClassifier(random_state=42, criterion = 'gini', max_depth = 5)
+dtc2 = DecisionTreeClassifier(random_state=42, criterion = 'gini', max_depth = 5,  min_samples_leaf=500, min_samples_split= 10000)
 
 
 print("Default scores:")
@@ -322,123 +328,16 @@ plt.title("Confusion Matrix - Decision Tree")
 plt.show()
 
 fig, ax = plt.subplots(figsize=(20, 10))
-plot_tree(dtc2, max_depth=5, fontsize=10, feature_names=X_train.columns.to_list(), class_names = True, filled=True)
+plot_tree(dtc2, max_depth=4, fontsize=10, feature_names=X_train.columns.to_list(), class_names = True, filled=True)
 plt.show()
 
 
 # create dot file with max depth of 3
-dot_data = export_graphviz(dtc2, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=5)
+dot_data = export_graphviz(dtc2, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=4)
 
 # create graph from dot file
 graph = graphviz.Source(dot_data)
 
 # show graph
 graph.view()
-################################################################################################################################
-#model 4
 
-dtc3 = DecisionTreeClassifier(random_state=42, criterion = 'gini', max_depth = 4)
-
-
-print("Default scores:")
-dtc3.fit(X_train, y_train)
-print("Train score:", dtc3.score(X_train, y_train))
-print("Validation score:", dtc3.score(X_test, y_test))
-
-# Make predictions on the testing set
-y_pred = dtc3.predict(X_test)
-y_pred_train=dtc3.predict(X_train)
-
-# Calculate the accuracy score of the model
-accuracy_train= accuracy_score(y_train, y_pred_train)
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy: {:.2f}%".format(accuracy * 100))
-print("Accuracy_Train: {:.2f}%".format(accuracy_train * 100))
-
-y_pred = dtc3.predict(X_test)
-
-accuracy_score(y_test, y_pred)
-f1_score(y_test, y_pred, average="macro")
-
-print(classification_report(y_test, y_pred))
-
-y_pred = dtc3.predict(X_test)
-confmat = confusion_matrix(y_true=y_test, y_pred=y_pred)
-
-index = ["Actual Not Severe", "Actual Severe"]
-columns = ["Predicted Not Severe", "Predicted Actual Severe"]
-conf_matrix = pd.DataFrame(data=confmat, columns=columns, index=index)
-plt.figure(figsize=(8, 5))
-sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="YlGnBu")
-plt.title("Confusion Matrix - Decision Tree")
-plt.show()
-
-fig, ax = plt.subplots(figsize=(20, 10))
-plot_tree(dtc3, max_depth=5, fontsize=10, feature_names=X_train.columns.to_list(), class_names = True, filled=True)
-plt.show()
-
-
-# create dot file with max depth of 3
-dot_data = export_graphviz(dtc3, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=4)
-
-# create graph from dot file
-graph = graphviz.Source(dot_data)
-
-# show graph
-graph.view()
-################################################################################################################################
-#Best Model as per GridSearchCV
-
-dtc4 = DecisionTreeClassifier(random_state=42, criterion = 'entropy', max_depth = 15)
-
-sample = df1
-y_sample = sample["severity"]
-X_sample = sample.drop("severity", axis=1)
-
-X_train, X_test, y_train, y_test = train_test_split(X_sample, y_sample, random_state=42)
-print(X_train.shape, y_train.shape)
-print(X_test.shape, y_test.shape)
-
-print("Default scores:")
-dtc4.fit(X_train, y_train)
-print("Train score:", dtc4.score(X_train, y_train))
-print("Validation score:", dtc4.score(X_test, y_test))
-
-# Make predictions on the testing set
-y_pred = dtc4.predict(X_test)
-y_pred_train=dtc4.predict(X_train)
-
-# Calculate the accuracy score of the model
-accuracy_train= accuracy_score(y_train, y_pred_train)
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy: {:.2f}%".format(accuracy * 100))
-print("Accuracy_Train: {:.2f}%".format(accuracy_train * 100))
-
-y_pred = dtc4.predict(X_test)
-
-accuracy_score(y_test, y_pred)
-f1_score(y_test, y_pred, average="macro")
-
-print(classification_report(y_test, y_pred))
-
-y_pred = dtc4.predict(X_test)
-confmat = confusion_matrix(y_true=y_test, y_pred=y_pred)
-
-index = ["Actual Not Severe", "Actual Severe"]
-columns = ["Predicted Not Severe", "Predicted Actual Severe"]
-conf_matrix = pd.DataFrame(data=confmat, columns=columns, index=index)
-plt.figure(figsize=(8, 5))
-sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="YlGnBu")
-plt.title("Confusion Matrix - Decision Tree")
-plt.show()
-
-
-# create dot file with max depth of 3
-dot_data = export_graphviz(dtc4, out_file=None, feature_names=X_train.columns, class_names=['Not Severe', 'Severe'], filled=True, rounded=True, special_characters=True, max_depth=5)
-
-
-# create graph from dot file
-graph = graphviz.Source(dot_data)
-
-# show graph
-graph.view()
