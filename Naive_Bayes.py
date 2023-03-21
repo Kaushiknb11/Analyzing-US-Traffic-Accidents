@@ -169,8 +169,5 @@ FDR = FP/(TP+FP)
 # Overall accuracy
 ACC = (TP+TN)/(TP+FP+FN+TN)
 
-print('FN')
-print('FP')
-
 
 
